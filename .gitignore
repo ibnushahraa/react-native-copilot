@@ -1,4 +1,5 @@
 npm-debug.*
 .DS_Store
 node_modules
-dist
+# dist di-commit: fork di-install langsung dari GitHub (tanpa langkah build)
+# dist

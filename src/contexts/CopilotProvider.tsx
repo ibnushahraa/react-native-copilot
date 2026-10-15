@@ -8,7 +8,7 @@ import React, {
   useState,
   type PropsWithChildren,
 } from "react";
-import { findNodeHandle, type ScrollView } from "react-native";
+import { type ScrollView } from "react-native";
 import {
   CopilotModal,
   type CopilotModalHandle,
@@ -17,6 +17,7 @@ import { OFFSET_WIDTH } from "../components/style";
 import { useStateWithAwait } from "../hooks/useStateWithAwait";
 import { useStepsMap } from "../hooks/useStepsMap";
 import { type CopilotOptions, type Step } from "../types";
+import { scrollStepIntoView } from "../utilities/scrollStepIntoView";
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 type Events = {
@@ -104,27 +105,13 @@ export const CopilotProvider = ({
       setCurrentStepState(step);
       copilotEvents.emit("stepChange", step);
 
-      if (scrollView != null) {
-        const nodeHandle = findNodeHandle(scrollView);
-        if (nodeHandle) {
-          step?.wrapperRef.current?.measureLayout(
-            nodeHandle,
-            (_x, y, _w, h) => {
-              const yOffset = y > 0 ? y - h / 2 : 0;
-              scrollView.scrollTo({ y: yOffset, animated: false });
-            }
-          );
-        }
+      if (step && scrollView != null) {
+        await scrollStepIntoView(scrollView, step);
       }
 
-      setTimeout(
-        () => {
-          if (move && step) {
-            void moveModalToStep(step);
-          }
-        },
-        scrollView != null ? 100 : 0
-      );
+      if (move && step) {
+        void moveModalToStep(step);
+      }
     },
     [copilotEvents, moveModalToStep, scrollView, setCurrentStepState]
   );
